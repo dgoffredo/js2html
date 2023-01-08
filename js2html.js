@@ -1,4 +1,4 @@
-// The `define` function value is given a value at the end of this file.
+// The `define` function value is passed in at the end of this file.
 (define => define([], () => {
 
 var funcProxy = new Proxy({}, {
