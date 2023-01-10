@@ -131,17 +131,15 @@ var renderArray = (options, array) => {
     options.result += `</${tag}>\n`;
 }
 
-var render = (options, first, ...rest) => {
-    if (Array.isArray(first)) {
-        renderArray(options, first);
-    } else if (typeof first === 'function') {
-        renderArray(options, first(funcProxy));
-    } else {
-        throw Error(`Element value has incompatible type.  Must be array or function.  Value is: ${first}`);
-    }
-
-    if (rest.length) {
-        throw Error(`Unexpected trailing arguments: ${rest}`);
+var render = (options, ...rest) => {
+    for (const arg of rest) {
+        if (Array.isArray(arg)) {
+            renderArray(options, arg);
+        } else if (typeof arg === 'function') {
+            renderArray(options, arg(funcProxy));
+        } else {
+            throw Error(`Element value has incompatible type.  Must be array or function.  Value is: ${first}`);
+        }
     }
 }
 

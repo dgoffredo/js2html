@@ -19,7 +19,7 @@ HTML.
 
 How
 ---
-Let's say we're in NodeJS.
+Let's say we're in Node.js.
 ```javascript
 const js2html = require('./js2html.js');
 
