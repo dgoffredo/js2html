@@ -9,7 +9,8 @@ var parseOptions = options => ({
     result: '',
     indentString: options.indentString || ' '.repeat(2),
     doctype: options.doctype,
-    indentLevel: options.indentLevel || 0
+    indentLevel: options.indentLevel || 0,
+    dom: options.dom
 });
 
 var escapeInnerText = text =>
@@ -39,10 +40,11 @@ var renderAttributes = (options, attributes) => {
         case 'string':
             break;
         case 'number':
+        case 'boolean':
             value = value.toString();
             break;
         default:
-            throw Error(`Invalid type for attribute value.  Type must be string or number.  Offending value is ${value} in ${attributes}`);
+            throw Error(`Invalid type for attribute value.  Type must be string, number, or boolean.  Offending value is ${value} in ${attributes}`);
         }
         options.result += `${escapeAttributeValue(value)}"`;
     }
@@ -143,6 +145,60 @@ var render = (options, ...rest) => {
     }
 }
 
+var arrayToDOM = array => {
+    if (array.length === 0) {
+        throw Error(`DOM element cannot be created from an empty array.`);
+    }
+    const [tag, ...rest] = array;
+    const result = document.createElement(tag);
+    if (rest.length === 0) {
+        return result;
+    }
+
+    let children;
+    if (isObject(rest[0])) {
+        const attributes = rest[0];
+        for (let [name, value] of Object.values(attributes)) {
+            switch (typeof value) {
+            case 'string':
+                break;
+            case 'number':
+            case 'boolean':
+                value = value.toString();
+                break;
+            default:
+                throw Error(`Invalid type for attribute value.  Type must be string, number, or boolean.  Offending value is ${value} in ${attributes}`);
+            }
+            result.setAttribute(name, value);
+        }
+        children = rest.slice(1);
+    } else {
+        children = rest;
+    }
+
+    for (const child of children) {
+        result.appendChild(toDOM(child));
+    }
+
+    return result;
+}
+
+var toDOM = value => {
+    switch (typeof value) {
+    case 'string':
+        return new Text(value);
+    case 'number':
+        return new Text(value.toString());
+    case 'function':
+        return toDOM(value(funcProxy));
+    }
+
+    if (!Array.isArray(value)) {
+        throw Error(`DOM elements can be made from arrays, functions, strings, and numbers, but not: ${value}`);
+    }
+    return arrayToDOM(value);
+}
+
 var js2html = (first, ...rest) => {
     let options;
     let args;
@@ -152,6 +208,13 @@ var js2html = (first, ...rest) => {
     } else {
         options = parseOptions({});
         args = [first, ...rest];
+    }
+
+    if (options.dom) {
+        if (args.length !== 1) {
+            throw Error(`DOM variant of js2html takes only one argument after the options object. arguments: ${args}`);
+        }
+        return toDOM(args[0]);
     }
 
     if (options.doctype) {

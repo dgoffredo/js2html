@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>noodle</title>
+    <script>
+    let js2html;
+    function define(_, func) {
+        js2html = func();
+    }
+    </script>
+    <script src="./js2html.js"></script>
+    <script>
+    function onText(event) {
+        const container = document.getElementById('output');
+        while (container.firstChild) {
+          container.removeChild(container.firstChild);
+        }
+        container.appendChild(js2html({dom: true}, eval(event.target.value)));
+    }
+    </script>
+  </head>
+  <body>
+    <textarea onchange="onText(event)" rows="20" cols="80">Javascript value goes here.</textarea>
+    <p><label for="output">DOM element ends up below here:</label></p>
+    <div id="output"></div>
+    <div>
+  </body>
+</html>
