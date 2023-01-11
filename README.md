@@ -146,7 +146,11 @@ The following options are supported:
     indentString: string,  // '  '
 
     // indentLevel is the initial level of indentation.  It defaults to zero.
-    indentLevel: integer  // 0
+    indentLevel: integer,  // 0
+
+    // If dom is true, then return a DOM Node instead of a string of HTML.
+    // If dom is true, all other options are ignored.  It defaults to false.
+    dom: boolean,  // false
 }
 ```
 
